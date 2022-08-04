@@ -16,3 +16,4 @@ before-build = [
     "python rebuild.py",
 ]
 
+repair-wheel-command = ""

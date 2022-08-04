@@ -27,6 +27,7 @@ setuptools.setup(
     long_description="",
     author="Matthias Bussonnier",
     author_email="bussonniermatthias@gmail.com",
+    zip_safe=False,
     url="",
     license="BSD",
     packages=["tree_sitter_rst"],
