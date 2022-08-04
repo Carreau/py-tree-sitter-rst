@@ -1,0 +1,12 @@
+*.pyc
+*.so
+*.c
+
+env*/
+
+vendor/
+build/
+dist/
+*.egg-info/
+
+tree-sitter-rst
