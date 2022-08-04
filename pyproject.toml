@@ -2,7 +2,7 @@
 requires-python = ">=3.6"
 
 [build-system]
-requires = ["setuptools","tree_sitter"]
+requires = ["setuptools","tree_sitter","wheel", "build"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
