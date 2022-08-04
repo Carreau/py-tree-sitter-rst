@@ -1,9 +1,18 @@
+[project]
+requires-python = ">=3.6"
+
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools","tree_sitter"]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 test-requires = "pytest"
 test-command = "pytest tests"
-before-build = "./before_build.sh"
+before-build = [
+    "ls tree-sitter-rst",
+    "git submodule update --init",
+    "ls tree-sitter-rst",
+    "python -m pip install tree_sitter",
+    "python rebuild.py",
+]
 
