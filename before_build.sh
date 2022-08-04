@@ -1,3 +1,3 @@
 #!/bin/sh 
-git shttps://github.com/stsewd/tree-sitter-rst
+git submodule update
 python rebuild.py
