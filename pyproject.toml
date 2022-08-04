@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
 test-requires = "pytest"
-test-command = "pytest tree_sitter_rst"
+test-command = "pytest --pyargs tree_sitter_rst"
 before-build = [
     "ls tree-sitter-rst",
     "git submodule update --init",
