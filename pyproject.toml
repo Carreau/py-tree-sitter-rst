@@ -19,4 +19,4 @@ before-build = [
 repair-wheel-command = ""
 
 [tool.cibuildwheel.linux]
-repair-wheel-command = "yes"
+repair-wheel-command = "true"
