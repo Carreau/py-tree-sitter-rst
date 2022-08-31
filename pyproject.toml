@@ -16,7 +16,3 @@ before-build = [
     "python rebuild.py",
 ]
 
-repair-wheel-command = ""
-
-[tool.cibuildwheel.linux]
-repair-wheel-command = "mv {wheel} {dest_dir}"
