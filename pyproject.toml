@@ -1,6 +1,3 @@
-[project]
-requires-python = ">=3.6"
-
 [build-system]
 requires = ["setuptools","tree_sitter","wheel", "build"]
 build-backend = "setuptools.build_meta"
@@ -13,6 +10,5 @@ before-build = [
     "git submodule update --init",
     "ls tree-sitter-rst",
     "python -m pip install tree_sitter",
-    "python rebuild.py",
 ]
 
