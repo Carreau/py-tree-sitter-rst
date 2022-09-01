@@ -9,5 +9,6 @@ assert len(candidates) == 1
 
 _binary_path = str(candidates[0])
 rst = Language(_binary_path, "rst")
-parser = Parser()
-parser.set_language(rst)
+_parser = Parser()
+_parser.set_language(rst)
+parse = parser._parse
