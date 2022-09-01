@@ -39,7 +39,7 @@ setuptools.setup(
             sources=["rst.source"], # all sources are compiled into a single binary file
         ),
     ],
-    version="0.0.1",
+    version="0.0.2",
     description="Binary Python wheels for tree_sitter_rst parser.",
     long_description="",
     author="Matthias Bussonnier",
