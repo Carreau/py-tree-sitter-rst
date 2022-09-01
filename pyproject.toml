@@ -10,6 +10,5 @@ before-build = [
     "git submodule update --init",
     "ls tree-sitter-rst",
     "python -m pip install tree_sitter",
-    "python rebuild.py",
 ]
 
