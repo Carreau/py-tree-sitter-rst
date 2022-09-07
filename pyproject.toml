@@ -9,6 +9,6 @@ before-build = [
     "ls tree-sitter-rst",
     "git submodule update --init",
     "ls tree-sitter-rst",
-    "python -m pip install tree_sitter",
+    "python -m pip install tree-sitter-builds",
 ]
 

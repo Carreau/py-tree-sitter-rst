@@ -26,7 +26,6 @@ class BuildExtCommand(build_ext):
                 "tree-sitter-rst",
             ],
         )
-        pass
 
 
 setuptools.setup(
@@ -39,7 +38,7 @@ setuptools.setup(
             sources=["rst.source"], # all sources are compiled into a single binary file
         ),
     ],
-    version="0.0.2",
+    version="0.0.3",
     description="Binary Python wheels for tree_sitter_rst parser.",
     long_description="",
     author="Matthias Bussonnier",
@@ -49,7 +48,7 @@ setuptools.setup(
     license="BSD",
     packages=["tree_sitter_rst"],
     package_data={"tree_sitter_rst": ["rst.so"]},
-    install_requires=["tree-sitter"],
+    install_requires=["tree-sitter-builds"],
     cmdclass={
         "build_ext": BuildExtCommand,
     },
