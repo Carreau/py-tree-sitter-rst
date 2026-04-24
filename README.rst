@@ -99,10 +99,15 @@ Wheels are built with `cibuildwheel`_::
 License
 =======
 
+Copyright 2022 Grant Jenks.
 Copyright Matthias Bussonnier and contributors.
 
 Licensed under the Apache License, Version 2.0.
-See ``LICENSE`` for the full text.
+See ``LICENSE`` and ``NOTICE`` for the full text and attribution details.
+
+This project is based on `py-tree-sitter-languages`_ by Grant Jenks.
 
 The bundled binary includes code from `tree-sitter-rst`_ by Santos Gallegos,
 licensed under the MIT License.
+
+.. _`py-tree-sitter-languages`: https://github.com/grantjenks/py-tree-sitter-languages

@@ -1,0 +1,7 @@
+py-tree-sitter-rst
+Copyright 2022 Grant Jenks
+Copyright Matthias Bussonnier and contributors
+
+This product is based on py-tree-sitter-languages
+(https://github.com/grantjenks/py-tree-sitter-languages),
+Copyright 2022 Grant Jenks, licensed under the Apache License, Version 2.0.
