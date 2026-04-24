@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "wheel", "tree_sitter"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,7 @@ readme = "README.rst"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Matthias Bussonnier", email = "bussonniermatthias@gmail.com" }]
 requires-python = ">=3.10"
-dependencies = ["tree-sitter-builds"]
+dependencies = ["tree-sitter>=0.22"]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
@@ -35,12 +35,13 @@ skip = ["pp*", "*-musllinux*"]
 test-requires = "pytest"
 test-command = "pytest --pyargs tree_sitter_rst"
 before-build = [
-    "git submodule update --init",
+    "git submodule update --init --remote tree-sitter-rst",
 ]
 
 [tool.ruff]
 target-version = "py310"
 line-length = 88
+exclude = ["tree-sitter-rst"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
