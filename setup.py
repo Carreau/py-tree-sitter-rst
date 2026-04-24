@@ -1,5 +1,3 @@
-import setuptools
-from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 from setuptools.command.build_ext import build_ext
 from setuptools import Extension, setup
 from tree_sitter import Language
@@ -16,7 +14,7 @@ class BuildExtCommand(build_ext):
         )
 
 
-setuptools.setup(
+setup(
     ext_modules=[
         Extension(
             name="tree_sitter_rst.rst",
