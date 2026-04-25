@@ -1,9 +1,9 @@
-from tree_sitter_rst import parser
+from tree_sitter_rst import parse
 
 
 def test_parse():
-    tree = parser.parse(b".. this::\n   is a directive")
+    tree = parse(b".. this::\n   is a directive")
     assert (
-        tree.root_node.sexp()
+        str(tree.root_node)
         == "(document (directive name: (type) body: (body (content))))"
     )

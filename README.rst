@@ -1,17 +1,16 @@
-==================================================
-Python Bindings for Tree Sitter with All Languages
-==================================================
+==========================================
+py-tree-sitter-rst
+==========================================
 
-Binary Python wheels for all tree sitter languages.
+Binary Python wheels for the `tree-sitter-rst`_ reStructuredText parser.
 
-`py-tree-sitter`_ is a fantastic library that provides Python bindings for the
-even more fantastic `tree-sitter`_ parsing library.
+`py-tree-sitter`_ is a Python binding for the `tree-sitter`_ parsing library.
+This package distributes pre-compiled binary wheels for the RST grammar,
+so you do not need a C compiler or build tools at install time.
 
-`py-tree-sitter-languages`_ provides binary Python wheels for all tree sitter
-languages. The binary wheels remove the need to download and compile support
-for individual languages.
-
-.. _`py-tree-sitter-languages`: https://github.com/grantjenks/py-tree-sitter-languages
+.. _`tree-sitter-rst`: https://github.com/stsewd/tree-sitter-rst
+.. _`py-tree-sitter`: https://github.com/tree-sitter/py-tree-sitter
+.. _`tree-sitter`: https://tree-sitter.github.io/
 
 
 Install
@@ -19,21 +18,7 @@ Install
 
 ::
 
-   pip install tree_sitter_languages
-
-Source installs are not supported. To see how the binary wheels are built, look
-at:
-
-1. setup.py — Python package setup.
-
-2. build.sh — Shell script to download support for all languages.
-
-3. build.py — Python script to build support for all languages.
-
-4. .github/workflows/release.yml — GitHub action to invoke `cibuildwheel`_ and
-   release to PyPI.
-
-.. _`cibuildwheel`: https://github.com/pypa/cibuildwheel
+   pip install tree_sitter_rst
 
 
 Usage
@@ -41,294 +26,88 @@ Usage
 
 ::
 
-   from tree_sitter_languages import get_language, get_parser
+   from tree_sitter_rst import parse
 
-   language = get_language('python')
-   parser = get_parser('python')
+   tree = parse(b".. note::\n   Hello world")
+   print(tree.root_node.sexp())
 
-That's the whole API!
-
-Refer to `py-tree-sitter`_ for the language and parser API. Notice the
-``Language.build_library(...)`` step can be skipped! The binary wheel includes
-the language binary.
-
-.. _`py-tree-sitter`: https://github.com/tree-sitter/py-tree-sitter
+Refer to `py-tree-sitter`_ for the full parser and node API.
 
 
-Demo
-====
+Development
+===========
 
-Want to know something crazy? Python lacks multi-line comments. Whhaaa!?!
+The RST grammar lives in the ``tree-sitter-rst`` git submodule (tracking
+`stsewd/tree-sitter-rst <https://github.com/stsewd/tree-sitter-rst>`_).
 
-It's really not such a big deal. Instead of writing::
+Updating the grammar
+--------------------
 
-   """
-   My awesome
-   multi-line
-   comment.
-   """
+To pull in the latest upstream grammar commit::
 
-Simply write::
+   git submodule update --remote tree-sitter-rst
+   git add tree-sitter-rst
+   git commit -m "chore: update tree-sitter-rst submodule"
 
-   # My awesome
-   # multi-line
-   # comment.
+To pin to a specific tag or commit::
 
-So multi-line comments are made by putting multiple single-line comments in
-sequence. Amazing!
+   cd tree-sitter-rst
+   git fetch
+   git checkout <tag-or-sha>
+   cd ..
+   git add tree-sitter-rst
+   git commit -m "chore: pin tree-sitter-rst to <tag-or-sha>"
 
-Now, how to find all the strings being used as comments?
+Using a fork
+------------
 
-Start with some example Python code::
+If you need to test against a fork of ``tree-sitter-rst`` (e.g. a branch with
+an unreleased fix), edit ``.gitmodules`` to point at the fork::
 
-   example = """
-   #!shebang
-   # License blah blah (Apache 2.0)
-   "This is a module docstring."
+   [submodule "tree-sitter-rst"]
+       path = tree-sitter-rst
+       url = https://github.com/<your-username>/tree-sitter-rst
 
-   a = 1
+Then re-initialise the submodule::
 
-   '''This
-   is
-   not
-   a
-   multiline
-   comment.'''
+   git submodule sync
+   git submodule update --init --remote tree-sitter-rst
 
-   b = 2
+Optionally check out a specific branch in the fork::
 
-   class Test:
-       "This is a class docstring."
+   cd tree-sitter-rst
+   git checkout <branch-name>
+   cd ..
+   git add .gitmodules tree-sitter-rst
+   git commit -m "chore: point submodule at fork branch <branch-name>"
 
-       'This is bogus.'
+Remember to revert ``.gitmodules`` before merging back to main.
 
-       def test(self):
-           "This is a function docstring."
 
-           "Please, no."
+Building wheels locally
+=======================
 
-           return 1
+Wheels are built with `cibuildwheel`_::
 
-   c = 3
-   """
+   pip install cibuildwheel
+   git submodule update --init
+   cibuildwheel --output-dir wheelhouse
 
-Notice a couple things:
-
-1. Python has module, class, and function docstrings that bare a striking
-   resemblance to the phony string comments.
-
-2. Python supports single-quoted, double-quoted, triple-single-quoted, and
-   triple-double-quoted strings (not to mention prefixes for raw strings,
-   unicode strings, and more).
-
-Creating a regular expression to capture the phony string comments would be
-exceedingly difficult!
-
-Enter `tree-sitter`_::
-
-   from tree_sitter_languages import get_language, get_parser
-
-   language = get_language('python')
-   parser = get_parser('python')
-
-Tree-sitter creates an abstract syntax tree (actually, a `concrete syntax
-tree`_) and supports queries::
-
-   tree = parser.parse(example.encode())
-   node = tree.root_node
-   print(node.sexp())
-
-.. _`concrete syntax tree`: https://stackoverflow.com/q/1888854/232571
-
-Look for statements that are a single string expression::
-
-   stmt_str_pattern = '(expression_statement (string)) @stmt_str'
-   stmt_str_query = language.query(stmt_str_pattern)
-   stmt_strs = stmt_str_query.captures(node)
-   stmt_str_points = set(
-       (node.start_point, node.end_point) for node, _ in stmt_strs
-   )
-   print(stmt_str_points)
-
-Now, find those statement string expressions that are actually module, class,
-or function docstrings::
-
-   doc_str_pattern = """
-       (module . (comment)* . (expression_statement (string)) @module_doc_str)
-
-       (class_definition
-           body: (block . (expression_statement (string)) @class_doc_str))
-
-       (function_definition
-           body: (block . (expression_statement (string)) @function_doc_str))
-   """
-   doc_str_query = language.query(doc_str_pattern)
-   doc_strs = doc_str_query.captures(node)
-   doc_str_points = set(
-       (node.start_point, node.end_point) for node, _ in doc_strs
-   )
-
-With the set of string expression statements and the set of docstring
-statements, the locations of all phony string comments is::
-
-   comment_strs = stmt_str_points - doc_str_points
-   print(sorted(comment_strs))
+.. _`cibuildwheel`: https://github.com/pypa/cibuildwheel
 
 
 License
 =======
 
-Copyright 2022 Grant Jenks
+Copyright 2022 Grant Jenks.
+Copyright Matthias Bussonnier and contributors.
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License.  You may obtain a copy of the
-License at
+Licensed under the Apache License, Version 2.0.
+See ``LICENSE`` and ``NOTICE`` for the full text and attribution details.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+This project is based on `py-tree-sitter-languages`_ by Grant Jenks.
 
-Unless required by applicable law or agreed to in writing, software distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, either express or implied. See the License for the
-specific language governing permissions and limitations under the License.
+The bundled binary includes code from `tree-sitter-rst`_ by Santos Gallegos,
+licensed under the MIT License.
 
-The project also includes the following other projects distributed in binary
-form:
-
-* https://github.com/tree-sitter/tree-sitter — licensed under the MIT License.
-
-* https://github.com/AbstractMachinesLab/tree-sitter-erlang — licensed under
-  the Apache License, Version 2.0.
-
-* https://github.com/Azganoth/tree-sitter-lua — licensed under the MIT
-  License.
-
-* https://github.com/Wilfred/tree-sitter-elisp — licensed under the MIT
-  License.
-
-* https://github.com/alemuller/tree-sitter-make — licensed under the MIT
-  License.
-
-* https://github.com/camdencheek/tree-sitter-dockerfile — licensed under the
-  MIT License.
-
-* https://github.com/camdencheek/tree-sitter-go-mod — licensed under the MIT
-  License.
-
-* https://github.com/elixir-lang/tree-sitter-elixir — licensed under the
-  Apache License, Version 2.0.
-
-* https://github.com/elm-tooling/tree-sitter-elm — licensed under the MIT
-  License.
-
-* https://github.com/fwcd/tree-sitter-kotlin — licensed under the MIT License.
-
-* https://github.com/ganezdragon/tree-sitter-perl — licensed under the MIT
-  License.
-
-* https://github.com/ikatyang/tree-sitter-markdown — licensed under the MIT
-  License.
-
-* https://github.com/ikatyang/tree-sitter-toml — licensed under the MIT
-  License.
-
-* https://github.com/ikatyang/tree-sitter-yaml — licensed under the MIT
-  License.
-
-* https://github.com/jiyee/tree-sitter-objc — licensed under the MIT License.
-
-* https://github.com/m-novikov/tree-sitter-sql — licensed under the MIT
-  License.
-
-* https://github.com/r-lib/tree-sitter-r — licensed under the MIT License.
-
-* https://github.com/rydesun/tree-sitter-dot — licensed under the MIT License.
-
-* https://github.com/slackhq/tree-sitter-hack — licensed under the MIT
-  License.
-
-* https://github.com/theHamsta/tree-sitter-commonlisp — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-bash — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-c — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-c-sharp — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-cpp — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-css — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-embedded-template — licensed
-  under the MIT License.
-
-* https://github.com/tree-sitter/tree-sitter-go — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-haskell — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-html — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-java — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-javascript — licensed under the
-  MIT License.
-
-* https://github.com/tree-sitter/tree-sitter-jsdoc — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-json — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-julia — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-ocaml — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-php — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-python — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-ql — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-regex — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-ruby — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-rust — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-scala — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-swift — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-toml — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-tsq — licensed under the MIT
-  License.
-
-* https://github.com/tree-sitter/tree-sitter-typescript — licensed under the
-  MIT License.
-
-* https://github.com/tree-sitter/tree-sitter-verilog — licensed under the MIT
-  License.
-
-
-.. _`tree-sitter`: https://tree-sitter.github.io/
+.. _`py-tree-sitter-languages`: https://github.com/grantjenks/py-tree-sitter-languages
